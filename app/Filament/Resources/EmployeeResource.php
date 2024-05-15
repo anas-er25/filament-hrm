@@ -17,10 +17,14 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
+use Illuminate\Contracts\Support\Htmlable;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Laravel\SerializableClosure\Serializers\Native;
@@ -29,7 +33,6 @@ use App\Filament\Resources\EmployeeResource\Pages\EditEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ViewEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ListEmployees;
 use App\Filament\Resources\EmployeeResource\Pages\CreateEmployee;
-use Filament\Tables\Enums\FiltersLayout;
 
 class EmployeeResource extends Resource
 {
@@ -37,8 +40,40 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Employee Management';
+    protected static ?string $recordTitleAttribute = 'first_name';
 
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->last_name;
+    }
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'first_name','last_name', 'middle_name'
+        ];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return ['Country'=> $record->country->name];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['country']);
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() > 5 ? 'success' : 'warning';
+    }
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -200,7 +235,13 @@ class EmployeeResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->successNotification(
+                    Notification::make()
+                    ->success()
+                    ->title('Employee deleted')
+                    ->body('The Employee deleted successfully')
+                )
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

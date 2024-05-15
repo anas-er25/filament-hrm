@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -72,8 +73,13 @@ class CityResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),Tables\Actions\DeleteAction::make()
+                ->successNotification(
+                    Notification::make()
+                    ->success()
+                    ->title('City deleted')
+                    ->body('The City deleted successfully')
+                )
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -7,20 +7,21 @@ use Filament\Tables;
 use App\Models\State;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\StateResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\StateResource\Pages\EditState;
 use App\Filament\Resources\StateResource\Pages\ListStates;
-use App\Filament\Resources\StateResource\Pages\CreateState;
 use App\Filament\Resources\StateResource\RelationManagers;
+use App\Filament\Resources\StateResource\Pages\CreateState;
 use App\Filament\Resources\StateResource\RelationManagers\CitiesRelationManager;
 use App\Filament\Resources\StateResource\RelationManagers\EmployeesRelationManager;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 
 class StateResource extends Resource
 {
@@ -74,7 +75,13 @@ class StateResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->successNotification(
+                    Notification::make()
+                    ->success()
+                    ->title('State deleted')
+                    ->body('The State deleted successfully')
+                )
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

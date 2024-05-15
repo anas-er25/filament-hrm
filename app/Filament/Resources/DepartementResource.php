@@ -9,6 +9,8 @@ use Filament\Tables\Table;
 use App\Models\Departement;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -17,7 +19,6 @@ use App\Filament\Resources\DepartementResource\Pages\EditDepartement;
 use App\Filament\Resources\DepartementResource\Pages\ViewDepartement;
 use App\Filament\Resources\DepartementResource\Pages\ListDepartements;
 use App\Filament\Resources\DepartementResource\Pages\CreateDepartement;
-use Illuminate\Database\Eloquent\Model;
 
 class DepartementResource extends Resource
 {
@@ -28,6 +29,16 @@ class DepartementResource extends Resource
     protected static ?string $modelLabel = 'Departement';
     protected static ?string $navigationGroup = 'System Management';
     protected static ?int $navigationSort = 4;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() > 5 ? 'success' : 'warning';
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -63,7 +74,13 @@ class DepartementResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->successNotification(
+                    Notification::make()
+                    ->success()
+                    ->title('Departement deleted')
+                    ->body('The Departement deleted successfully')
+                )
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
