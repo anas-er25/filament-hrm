@@ -5,15 +5,20 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\City;
 use Filament\Tables;
-use App\Filament\Resources\CityResource\Pages\CreateCity;
-use App\Filament\Resources\CityResource\Pages\EditCity;
-use App\Filament\Resources\CityResource\Pages\ListCities;
-use App\Filament\Resources\CityResource\Pages\ViewCity;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\CityResource\Pages\EditCity;
+use App\Filament\Resources\CityResource\Pages\ViewCity;
+use App\Filament\Resources\CityResource\Pages\CreateCity;
+use App\Filament\Resources\CityResource\Pages\ListCities;
 use App\Filament\Resources\CityResource\RelationManagers;
 
 class CityResource extends Resource
@@ -75,6 +80,14 @@ class CityResource extends Resource
                 ]),
             ]);
     }
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+        ->schema([
+            TextEntry::make('state.name')->label('State name'),
+            TextEntry::make('name')->label('City name'),
+        ]);
+    }
 
     public static function getRelations(): array
     {
@@ -88,7 +101,6 @@ class CityResource extends Resource
         return [
             'index' => ListCities::route('/'),
             'create' => CreateCity::route('/create'),
-            'view' => ViewCity::route('/{record}'),
             'edit' => EditCity::route('/{record}/edit'),
         ];
     }

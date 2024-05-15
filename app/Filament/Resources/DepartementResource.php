@@ -7,14 +7,17 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Departement;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DepartementResource\RelationManagers;
 use App\Filament\Resources\DepartementResource\Pages\EditDepartement;
 use App\Filament\Resources\DepartementResource\Pages\ViewDepartement;
 use App\Filament\Resources\DepartementResource\Pages\ListDepartements;
 use App\Filament\Resources\DepartementResource\Pages\CreateDepartement;
+use Illuminate\Database\Eloquent\Model;
 
 class DepartementResource extends Resource
 {
@@ -69,6 +72,17 @@ class DepartementResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+        ->schema([
+            TextEntry::make('name')->label('Departement name'),
+            TextEntry::make('employees_count')->state(function (Model $record): int{
+                return $record->employees()->count();
+            }),
+        ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -81,7 +95,6 @@ class DepartementResource extends Resource
         return [
             'index' => ListDepartements::route('/'),
             'create' => CreateDepartement::route('/create'),
-            'view' => ViewDepartement::route('/{record}'),
             'edit' => EditDepartement::route('/{record}/edit'),
         ];
     }

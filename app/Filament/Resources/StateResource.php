@@ -17,6 +17,8 @@ use App\Filament\Resources\StateResource\Pages\EditState;
 use App\Filament\Resources\StateResource\Pages\ListStates;
 use App\Filament\Resources\StateResource\Pages\CreateState;
 use App\Filament\Resources\StateResource\RelationManagers;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 
 class StateResource extends Resource
 {
@@ -77,6 +79,15 @@ class StateResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+        ->schema([
+            TextEntry::make('country.name')->label('Country name'),
+            TextEntry::make('name')->label('State name'),
+        ]);
     }
 
     public static function getRelations(): array

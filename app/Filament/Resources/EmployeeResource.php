@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\City;
 use Filament\Tables;
@@ -11,16 +12,24 @@ use Filament\Forms\Set;
 use App\Models\Employee;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Laravel\SerializableClosure\Serializers\Native;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Filament\Resources\EmployeeResource\Pages\EditEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ViewEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ListEmployees;
 use App\Filament\Resources\EmployeeResource\Pages\CreateEmployee;
-use Laravel\SerializableClosure\Serializers\Native;
+use Filament\Tables\Enums\FiltersLayout;
 
 class EmployeeResource extends Resource
 {
@@ -154,8 +163,40 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
-            ])
+                SelectFilter::make('Departement')
+                ->relationship('departement', 'name')
+                ->searchable()
+                ->preload(),
+                Filter::make('created_at')
+    ->form([
+        DatePicker::make('created_from'),
+        DatePicker::make('created_until'),
+    ])
+    ->query(function (Builder $query, array $data): Builder {
+        return $query
+            ->when(
+                $data['created_from'],
+                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+            )
+            ->when(
+                $data['created_until'],
+                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+            );
+    })
+
+    ->indicateUsing(function (array $data): array {
+        $indicators = []; 
+        if ($data['created_from'] ?? null) {
+            $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['created_from'])->toFormattedDateString());
+        }
+ 
+        if ($data['created_until'] ?? null) {
+            $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['created_until'])->toFormattedDateString());
+        }
+ 
+        return $indicators;
+    })
+    ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -168,6 +209,35 @@ class EmployeeResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+        ->schema([
+            Section::make('Relationships')
+            ->schema([
+                TextEntry::make('country.name')->label('Country name'),
+                TextEntry::make('departement.name')->label('Departement'),
+            ])->columns(2),
+            Section::make('Details')
+            ->schema([
+                TextEntry::make('first_name')->label('First name'),
+                TextEntry::make('last_name')->label('Last name'),
+                TextEntry::make('date_hired')->label('Date hired'),
+            ])->columns(3),
+            Section::make('Address')
+            ->schema([
+                TextEntry::make('address')->label('Address'),
+                TextEntry::make('zip_code')->label('Zip Code'),
+            ])->columns(2),
+            Section::make('Dates')
+            ->schema([
+                TextEntry::make('date_of_birth')->label('Date of Birth'),
+                TextEntry::make('date_hired')->label('Date hired'),
+            ])->columns(2),
+            
+        ]);
+    }
+    
     public static function getRelations(): array
     {
         return [
@@ -180,7 +250,6 @@ class EmployeeResource extends Resource
         return [
             'index' => ListEmployees::route('/'),
             'create' => CreateEmployee::route('/create'),
-            'view' => ViewEmployee::route('/{record}'),
             'edit' => EditEmployee::route('/{record}/edit'),
         ];
     }
