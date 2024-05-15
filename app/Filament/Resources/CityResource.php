@@ -20,6 +20,7 @@ use App\Filament\Resources\CityResource\Pages\ViewCity;
 use App\Filament\Resources\CityResource\Pages\CreateCity;
 use App\Filament\Resources\CityResource\Pages\ListCities;
 use App\Filament\Resources\CityResource\RelationManagers;
+use App\Filament\Resources\CityResource\RelationManagers\EmployeesRelationManager;
 
 class CityResource extends Resource
 {
@@ -92,7 +93,7 @@ class CityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            EmployeesRelationManager::class,
         ];
     }
 

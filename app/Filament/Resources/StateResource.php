@@ -17,6 +17,8 @@ use App\Filament\Resources\StateResource\Pages\EditState;
 use App\Filament\Resources\StateResource\Pages\ListStates;
 use App\Filament\Resources\StateResource\Pages\CreateState;
 use App\Filament\Resources\StateResource\RelationManagers;
+use App\Filament\Resources\StateResource\RelationManagers\CitiesRelationManager;
+use App\Filament\Resources\StateResource\RelationManagers\EmployeesRelationManager;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 
@@ -93,7 +95,8 @@ class StateResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CitiesRelationManager::class,
+            EmployeesRelationManager::class
         ];
     }
 
