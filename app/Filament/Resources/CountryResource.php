@@ -37,13 +37,29 @@ class CountryResource extends Resource
     {
         return $table
             ->columns([
-                //
-            ])
+                // Tables\Columns\TextColumn::make('id')
+                //     ->numeric()
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Country name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])->defaultSort('name')
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

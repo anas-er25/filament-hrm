@@ -20,6 +20,7 @@ use App\Filament\Resources\EmployeeResource\Pages\EditEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ViewEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ListEmployees;
 use App\Filament\Resources\EmployeeResource\Pages\CreateEmployee;
+use Laravel\SerializableClosure\Serializers\Native;
 
 class EmployeeResource extends Resource
 {
@@ -97,9 +98,13 @@ class EmployeeResource extends Resource
                 Forms\Components\Section::make('Dates')
                 ->schema([
                 Forms\Components\DatePicker::make('date_of_birth')
-                    ->required(),
+                    ->required()
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
                 Forms\Components\DatePicker::make('date_hired')
-                    ->required(),
+                    ->required()
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
                 ])->columns(2)
             ]);
     }
@@ -108,31 +113,34 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('country_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('state_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('city_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('departement_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('country.name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('departement.name')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('first_name')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('last_name')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('middle_name')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('address')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('zip_code')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('date_of_birth')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('date_hired')
                     ->date()
                     ->sortable(),
@@ -151,6 +159,7 @@ class EmployeeResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
